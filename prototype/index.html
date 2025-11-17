@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PilotX - AI Chat Prototype</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Markdown & Code Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>PilotX</span>
+                </div>
+                <button class="btn-new-chat" id="newChatBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    新對話
+                </button>
+            </div>
+
+            <div class="conversation-list" id="conversationList">
+                <div class="conversation-item active" data-id="1">
+                    <div class="conversation-content">
+                        <div class="conversation-title">FastAPI 開發討論</div>
+                        <div class="conversation-time">2 小時前</div>
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="btn-icon" title="重新命名">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="btn-icon" title="刪除">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="conversation-item" data-id="2">
+                    <div class="conversation-content">
+                        <div class="conversation-title">Python 學習筆記</div>
+                        <div class="conversation-time">昨天</div>
+                    </div>
+                </div>
+
+                <div class="conversation-item" data-id="3">
+                    <div class="conversation-content">
+                        <div class="conversation-title">React 專案架構</div>
+                        <div class="conversation-time">3 天前</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="model-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                    <span>Llama 3.1 (本地)</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="messages" id="messages">
+                    <!-- Welcome Message -->
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">
+                                <h3>歡迎使用 PilotX！</h3>
+                                <p>我是您的 AI 助手，使用 <strong>Llama 3.1 (8B)</strong> 模型，完全在本地運行。</p>
+                                <p>您可以問我任何問題，例如：</p>
+                                <ul>
+                                    <li>程式設計問題</li>
+                                    <li>技術解釋</li>
+                                    <li>程式碼範例</li>
+                                    <li>一般知識</li>
+                                </ul>
+                            </div>
+                            <div class="message-time">剛剛</div>
+                        </div>
+                    </div>
+
+                    <!-- Sample User Message -->
+                    <div class="message user-message">
+                        <div class="message-avatar">U</div>
+                        <div class="message-content">
+                            <div class="message-text">請幫我寫一個 Python FastAPI 的 Hello World 範例</div>
+                            <div class="message-time">10:30</div>
+                        </div>
+                    </div>
+
+                    <!-- Sample AI Response with Code -->
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text markdown-content">
+                                <p>好的！這是一個簡單的 FastAPI Hello World 範例：</p>
+                                <pre><code class="language-python"># main.py
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q}
+</code></pre>
+                                <p>執行方式：</p>
+                                <pre><code class="language-bash">pip install fastapi uvicorn
+uvicorn main:app --reload
+</code></pre>
+                                <p>然後訪問 <code>http://localhost:8000</code> 即可看到結果！</p>
+                            </div>
+                            <div class="message-actions">
+                                <button class="btn-icon copy-btn" title="複製">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="message-time">10:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="輸入訊息... (Enter 發送, Shift+Enter 換行)"
+                        rows="1"
+                    ></textarea>
+                    <button class="btn-send" id="sendBtn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-hint">Enter 發送 · Shift+Enter 換行</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
