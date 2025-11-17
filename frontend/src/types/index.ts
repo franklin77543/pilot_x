@@ -17,16 +17,9 @@ export interface Message {
   model?: string;
 }
 
-// Chat Request/Response Types
-export interface ChatRequest {
-  message: string;
-  conversation_id?: string;
+export interface SendMessageRequest {
+  content: string;
   model?: string;
-}
-
-export interface ChatResponse {
-  message: Message;
-  conversation: Conversation;
 }
 
 // API Response Types

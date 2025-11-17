@@ -17,8 +17,8 @@
 
 ## 階段開發
 1. 先用 React + Tailwind 做一個簡單的 Chat UI
-2. 後端用 FastAPI，只做一個 /chat API
-3. 接上 OpenAI API (或其他的 LLM)
+2. 後端用 FastAPI，實作 conversation 和 message API
+3. 接上 Ollama (本地 LLM)
 4. 把回覆顯示在前端，支援 Markdown + 程式碼高亮
 5. 再慢慢加上歷史紀錄、模式切換、語音/圖片等功能
 
@@ -327,31 +327,30 @@ backend/
 │   │   └── config.py              # 配置管理（環境變量、應用設置）
 │   ├── db/
 │   │   ├── __init__.py
-│   │   └── database.py            # 數據庫連接、SessionLocal、get_db()
+│   │   └── session.py             # 數據庫連接、SessionLocal、Base
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── conversation.py        # 對話 ORM 模型
-│   │   ├── message.py             # 訊息 ORM 模型
-│   │   └── user.py                # 用戶 ORM 模型（選用）
+│   │   ├── conversation_model.py  # 對話 ORM 模型
+│   │   └── message_model.py       # 訊息 ORM 模型
 │   ├── schemas/
 │   │   ├── __init__.py
-│   │   ├── chat.py                # Chat 請求/回應模型
-│   │   └── conversation.py        # Conversation 驗證模型
+│   │   ├── conversation_schema.py # Conversation Pydantic 模型
+│   │   └── message_schema.py      # Message Pydantic 模型
 │   ├── repositories/
 │   │   ├── __init__.py
-│   │   ├── conversation_repository.py  # 對話數據層
-│   │   └── message_repository.py       # 訊息數據層
+│   │   ├── conversation_repository.py  # 對話數據層（CRUD）
+│   │   └── message_repository.py       # 訊息數據層（CRUD）
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── chat_service.py        # 聊天業務邏輯
-│   │   └── ai_service.py          # AI 模型整合服務
-│   └── api/
-│       ├── __init__.py
-│       └── endpoints/
-│           ├── __init__.py
-│           ├── chat.py            # Chat API 路由
-│           └── conversation.py    # Conversation API 路由
-├── main.py                         # FastAPI 應用入口
+│   │   ├── conversation_service.py     # 對話業務邏輯
+│   │   ├── message_service.py          # 訊息與聊天業務邏輯
+│   │   └── ollama.py                   # Ollama AI 模型整合服務
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── conversation_api.py    # Conversation API 路由
+│   │   └── message_api.py         # Message API 路由
+│   ├── dependencies.py            # 依賴注入（Repository & Service）
+│   └── main.py                    # FastAPI 應用入口
 ├── requirements.txt                # Python 依賴
 ├── .env                            # 環境變量
 └── .gitignore
@@ -521,32 +520,28 @@ Ref: messages.conversation_id > conversations.id [delete: cascade]
 
 #### 1. 聊天相關
 
-**POST /api/v1/chat**
+**POST /api/v1/conversations/{conversation_id}/messages**
 - 描述：發送訊息並獲取 AI 回應
 - 請求體：
 ```json
 {
-  "conversation_id": 1,  // 可選，null 則建立新對話
-  "message": "你好，請幫我解釋什麼是 FastAPI",
-  "model": "gpt-3.5-turbo"  // 可選，預設使用系統設定
+  "content": "你好，請幫我解釋什麼是 FastAPI",
+  "model": "llama3.1:8b"  // 可選，預設使用系統設定
 }
 ```
 - 回應：
 ```json
 {
-  "conversation_id": 1,
-  "message": {
-    "id": 123,
-    "role": "assistant",
-    "content": "FastAPI 是一個現代、快速的 Python Web 框架...",
-    "model": "gpt-3.5-turbo",
-    "token_count": 150,
-    "created_at": "2025-11-17T10:30:00Z"
-  }
+  "id": 123,
+  "conversation_id": "1",
+  "role": "assistant",
+  "content": "FastAPI 是一個現代、快速的 Python Web 框架...",
+  "model": "llama3.1:8b",
+  "created_at": "2025-11-17T10:30:00Z"
 }
 ```
 
-**POST /api/v1/chat/stream** (階段2)
+**POST /api/v1/conversations/{conversation_id}/messages/stream** (階段2)
 - 描述：串流式回應（Server-Sent Events）
 - 回應：逐字串流輸出
 
@@ -1542,7 +1537,7 @@ def downgrade():
 - [ ] 建立 Pydantic Schemas
 - [ ] 實作 Repository 層
 - [ ] 實作 Service 層
-- [ ] 實作 /chat API 端點
+- [ ] 實作 /conversations/{id}/messages API 端點
 - [ ] 整合 OpenAI API
 - [ ] 實作錯誤處理中間件
 - [ ] 實作 CORS 設定
@@ -1587,7 +1582,7 @@ A: 開發環境：`backend/pilotx.db`，生產環境建議使用 PostgreSQL。
 A: 使用 slowapi 套件實作 Rate Limiting，在 .env 設定限制值。
 
 ### Q4: 支援串流回應嗎？
-A: 階段2會實作 `/chat/stream` 端點，使用 Server-Sent Events。
+A: 階段2會實作 `/conversations/{id}/messages/stream` 端點，使用 Server-Sent Events。
 
 ### Q5: 如何處理長對話的上下文？
 A: 自動截斷舊訊息，保留最近 N 則訊息（可在 Service 層設定）。

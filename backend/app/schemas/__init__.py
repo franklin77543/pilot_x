@@ -10,8 +10,6 @@ from .message_schema import (
     MessageBase,
     MessageCreate,
     Message,
-    ChatRequest,
-    ChatResponse,
 )
 
 __all__ = [
@@ -25,6 +23,4 @@ __all__ = [
     "MessageBase",
     "MessageCreate",
     "Message",
-    "ChatRequest",
-    "ChatResponse",
 ]

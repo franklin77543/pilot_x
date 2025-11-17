@@ -61,7 +61,7 @@
   - PUT `/api/v1/conversations/{id}` - Update conversation
   - DELETE `/api/v1/conversations/{id}` - Delete conversation
   - GET `/api/v1/conversations/{id}/messages` - List messages
-  - POST `/api/v1/chat` - Chat with AI
+  - POST `/api/v1/conversations/{id}/messages` - Send message to conversation
 - ✅ Ollama integration service
 - ✅ Environment configuration (`.env`)
 - ✅ CORS configured for frontend

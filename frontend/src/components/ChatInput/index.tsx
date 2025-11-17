@@ -1,7 +1,7 @@
 import React from 'react';
 import { Send } from 'lucide-react';
 import { useStore } from '../../store';
-import { chatApi } from '../../services/api';
+import { messageApi, conversationApi } from '../../services/api';
 
 export const ChatInput: React.FC = () => {
   const {
@@ -40,20 +40,24 @@ export const ChatInput: React.FC = () => {
     addMessage(tempUserMessage);
 
     try {
-      const response = await chatApi.send({
-        message: userMessage,
-        conversation_id: currentConversation?.id,
+      // Create conversation if needed
+      let conversationId = currentConversation?.id;
+      
+      if (!conversationId) {
+        const newConversation = await conversationApi.create();
+        setCurrentConversation(newConversation);
+        addConversation(newConversation);
+        conversationId = newConversation.id;
+      }
+
+      // Send message and get AI response
+      const assistantMessage = await messageApi.send(conversationId, {
+        content: userMessage,
         model: currentModel?.id,
       });
 
-      // Update conversation if it's new
-      if (!currentConversation) {
-        setCurrentConversation(response.conversation);
-        addConversation(response.conversation);
-      }
-
       // Add the assistant's message
-      addMessage(response.message);
+      addMessage(assistantMessage);
     } catch (error) {
       setError('Failed to send message');
       console.error('Error sending message:', error);

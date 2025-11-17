@@ -70,7 +70,7 @@ ollama serve
 **Terminal 2 - Backend:**
 ```powershell
 cd backend
-E:/My_Repo/Github/20251117_PilotX/backend/venv/Scripts/python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+venv/Scripts/python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 **Terminal 3 - Frontend:**
@@ -161,7 +161,7 @@ PilotX/
 - `GET /api/v1/conversations/{id}/messages` - List messages in conversation
 
 ### Chat
-- `POST /api/v1/chat` - Send message and get AI response
+- `POST /api/v1/conversations/{id}/messages` - Send message and get AI response
 
 ## 🎨 Design System
 

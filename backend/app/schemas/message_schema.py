@@ -20,22 +20,3 @@ class Message(MessageBase):
     
     class Config:
         from_attributes = True
-
-
-class ChatRequest(BaseModel):
-    message: str
-    conversation_id: Optional[str] = None
-    model: Optional[str] = None
-
-
-class ChatResponse(BaseModel):
-    message: Message
-    conversation: "Conversation"  # Forward reference
-    
-    class Config:
-        from_attributes = True
-
-
-# Import for forward reference
-from app.schemas.conversation_schema import Conversation
-ChatResponse.model_rebuild()

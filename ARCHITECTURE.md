@@ -79,21 +79,21 @@ Database Query (Conversation model)
 Return Conversation objects
 ```
 
-### 2. Chat Message Flow
+### 2. Send Message Flow
 
 ```
-POST /api/v1/chat
+POST /api/v1/conversations/{id}/messages
     ↓
-message_api.chat()
+message_api.send_message()
     ↓
-message_service.chat()
+message_service.send_message()
     ├→ conversation_repository.get_conversation_by_id()
     ├→ message_repository.create_message() [user message]
     ├→ ollama_service.chat() [AI response]
     ├→ message_repository.create_message() [assistant message]
     └→ conversation_repository.update_conversation() [update title]
     ↓
-Return ChatResponse
+Return Message
 ```
 
 ## 📦 各層職責
@@ -170,9 +170,9 @@ class MessageService:
         self.conversation_repo = conversation_repo
         self.message_repo = message_repo
     
-    def chat(self, request: ChatRequest):
-        # 1. Get/create conversation
-        conversation = self.conversation_repo.get_conversation_by_id(...)
+    def send_message(self, conversation_id: str, message_content: str, model: Optional[str]):
+        # 1. Verify conversation exists
+        conversation = self.conversation_repo.get_conversation_by_id(conversation_id)
         
         # 2. Save user message
         user_msg = self.message_repo.create_message(...)
@@ -183,7 +183,7 @@ class MessageService:
         # 4. Save AI message
         ai_msg = self.message_repo.create_message(...)
         
-        return ChatResponse(...)
+        return Message(...)
 ```
 
 ### 4. API Layer (API 層)

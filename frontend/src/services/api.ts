@@ -2,8 +2,7 @@ import axios from 'axios';
 import type {
   Conversation,
   Message,
-  ChatRequest,
-  ChatResponse,
+  SendMessageRequest,
   PaginatedResponse,
   AIModel,
 } from '../types';
@@ -53,18 +52,11 @@ export const messageApi = {
     return response.data;
   },
 
-  get: async (conversationId: string, messageId: string): Promise<Message> => {
-    const response = await api.get<Message>(
-      `/conversations/${conversationId}/messages/${messageId}`
+  send: async (conversationId: string, request: SendMessageRequest): Promise<Message> => {
+    const response = await api.post<Message>(
+      `/conversations/${conversationId}/messages`,
+      request
     );
-    return response.data;
-  },
-};
-
-// Chat API
-export const chatApi = {
-  send: async (request: ChatRequest): Promise<ChatResponse> => {
-    const response = await api.post<ChatResponse>('/chat', request);
     return response.data;
   },
 };

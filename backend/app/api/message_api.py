@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.schemas.message_schema import (
-    Message,
-    ChatRequest,
-    ChatResponse,
-)
+from pydantic import BaseModel
+from app.schemas.message_schema import Message
 from app.services.message_service import MessageService
 from app.dependencies import get_message_service
 
 router = APIRouter()
+
+
+class SendMessageRequest(BaseModel):
+    content: str
+    model: str | None = None
 
 
 @router.get("/conversations/{conversation_id}/messages", response_model=List[Message])
@@ -23,14 +25,19 @@ def list_messages(
     return messages
 
 
-@router.post("/chat", response_model=ChatResponse)
-def chat(
-    request: ChatRequest,
+@router.post("/conversations/{conversation_id}/messages", response_model=Message)
+def send_message(
+    conversation_id: str,
+    request: SendMessageRequest,
     service: MessageService = Depends(get_message_service)
 ):
     """Send a message and get AI response"""
     try:
-        return service.chat(request)
+        return service.send_message(
+            conversation_id=conversation_id,
+            message_content=request.content,
+            model=request.model
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

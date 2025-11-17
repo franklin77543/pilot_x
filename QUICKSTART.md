@@ -57,7 +57,7 @@ curl http://localhost:11434/api/tags
 - `PUT /api/v1/conversations/{id}` - Update conversation title
 - `DELETE /api/v1/conversations/{id}` - Delete conversation
 - `GET /api/v1/conversations/{id}/messages` - Get messages
-- `POST /api/v1/chat` - Send message and get AI response
+- `POST /api/v1/conversations/{id}/messages` - Send message and get AI response
 
 ## Testing the API
 

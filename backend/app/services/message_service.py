@@ -5,8 +5,7 @@ from app.services.ollama import ollama_service
 from app.schemas.conversation_schema import Conversation
 from app.schemas.message_schema import (
     Message,
-    ChatRequest,
-    ChatResponse,
+    MessageCreate,
 )
 
 
@@ -37,23 +36,18 @@ class MessageService:
             created_at=msg.created_at
         ) for msg in messages]
     
-    def chat(self, request: ChatRequest) -> ChatResponse:
-        """Handle chat request with AI"""
-        # Get or create conversation
-        conversation = None
-        if request.conversation_id:
-            conversation = self.conversation_repository.get_conversation_by_id(request.conversation_id)
-            if not conversation:
-                raise ValueError("Conversation not found")
-        else:
-            # Create new conversation
-            conversation = self.conversation_repository.create_conversation(title="New Chat")
+    def send_message(self, conversation_id: str, message_content: str, model: Optional[str] = None) -> Message:
+        """Send a message and get AI response"""
+        # Verify conversation exists
+        conversation = self.conversation_repository.get_conversation_by_id(conversation_id)
+        if not conversation:
+            raise ValueError("Conversation not found")
         
         # Save user message
         user_message = self.message_repository.create_message(
             conversation_id=conversation.id,
             role="user",
-            content=request.message
+            content=message_content
         )
         
         # Get conversation history
@@ -68,7 +62,7 @@ class MessageService:
         # Get AI response
         response = ollama_service.chat(
             messages=ollama_messages,
-            model=request.model
+            model=model
         )
         
         assistant_content = response.get("message", {}).get("content", "")
@@ -78,30 +72,21 @@ class MessageService:
             conversation_id=conversation.id,
             role="assistant",
             content=assistant_content,
-            model=request.model or "llama3.1:8b"
+            model=model or "llama3.1:8b"
         )
         
         # Update conversation title if it's the first exchange
         if len(messages) == 1:  # Only user message exists
-            conversation = self.conversation_repository.update_conversation(
+            self.conversation_repository.update_conversation(
                 conversation.id,
-                request.message[:50]
+                message_content[:50]
             )
         
-        return ChatResponse(
-            message=Message(
-                id=assistant_message.id,
-                conversation_id=assistant_message.conversation_id,
-                role=assistant_message.role,
-                content=assistant_message.content,
-                model=assistant_message.model,
-                created_at=assistant_message.created_at
-            ),
-            conversation=Conversation(
-                id=conversation.id,
-                title=conversation.title,
-                created_at=conversation.created_at,
-                updated_at=conversation.updated_at,
-                message_count=len(conversation.messages)
-            )
+        return Message(
+            id=assistant_message.id,
+            conversation_id=assistant_message.conversation_id,
+            role=assistant_message.role,
+            content=assistant_message.content,
+            model=assistant_message.model,
+            created_at=assistant_message.created_at
         )
