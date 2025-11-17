@@ -100,14 +100,27 @@ PilotX/
 │   │   └── index.css        # Tailwind CSS + Design system
 │   └── package.json
 │
-├── backend/                  # FastAPI + SQLAlchemy
+├── backend/                  # FastAPI + SQLAlchemy (Layered Architecture)
 │   ├── app/
-│   │   ├── api/             # API routes (chat.py)
+│   │   ├── models/          # Model Layer - Database ORM models
+│   │   │   ├── conversation_model.py
+│   │   │   └── message_model.py
+│   │   ├── repositories/    # Repository Layer - Database operations
+│   │   │   ├── conversation_repository.py
+│   │   │   └── message_repository.py
+│   │   ├── services/        # Service Layer - Business logic
+│   │   │   ├── conversation_service.py
+│   │   │   ├── message_service.py
+│   │   │   └── ollama.py
+│   │   ├── api/             # API Layer - HTTP endpoints
+│   │   │   ├── conversation_api.py
+│   │   │   └── message_api.py
 │   │   ├── core/            # Config settings
 │   │   ├── db/              # Database session
-│   │   ├── models/          # SQLAlchemy models
 │   │   ├── schemas/         # Pydantic schemas
-│   │   ├── services/        # Ollama service
+│   │   │   ├── conversation_schema.py
+│   │   │   └── message_schema.py
+│   │   ├── dependencies.py  # Dependency injection
 │   │   └── main.py          # FastAPI app
 │   ├── requirements.txt
 │   └── .env

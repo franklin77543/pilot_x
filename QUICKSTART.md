@@ -102,7 +102,11 @@ E:/My_Repo/Github/20251117_PilotX/backend/venv/Scripts/python.exe test_api.py
 ```
 PilotX/
 ├── frontend/          # React + TypeScript + Vite + Tailwind
-├── backend/           # FastAPI + SQLAlchemy + Ollama
+├── backend/           # FastAPI + SQLAlchemy + Ollama (Layered Architecture)
+│   ├── models/        # Database ORM models
+│   ├── repositories/  # Database operations
+│   ├── services/      # Business logic
+│   └── api/           # HTTP endpoints
 ├── prototype/         # Static HTML prototype (reference)
 ├── README.md          # Full documentation
 ├── SPEC.md            # Complete specification

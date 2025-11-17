@@ -1,12 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
-from app.schemas.conversation import (
+from app.schemas.conversation_schema import (
     Conversation,
     ConversationCreate,
     ConversationUpdate,
-    Message,
-    ChatRequest,
-    ChatResponse,
     PaginatedResponse,
 )
 from app.services.conversation_service import ConversationService
@@ -70,29 +66,3 @@ def delete_conversation(
     if not success:
         raise HTTPException(status_code=404, detail="Conversation not found")
     return {"message": "Conversation deleted successfully"}
-
-
-@router.get("/conversations/{conversation_id}/messages", response_model=List[Message])
-def list_messages(
-    conversation_id: str,
-    service: ConversationService = Depends(get_conversation_service)
-):
-    """List all messages in a conversation"""
-    messages = service.list_messages(conversation_id)
-    if messages is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-    return messages
-
-
-@router.post("/chat", response_model=ChatResponse)
-def chat(
-    request: ChatRequest,
-    service: ConversationService = Depends(get_conversation_service)
-):
-    """Send a message and get AI response"""
-    try:
-        return service.chat(request)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")

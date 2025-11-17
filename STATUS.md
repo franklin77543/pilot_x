@@ -143,7 +143,7 @@ E:\My_Repo\Github\20251117_PilotX\
 │   ├── tsconfig.json                 ✅ TypeScript config
 │   └── vite.config.ts                ✅ Vite config
 │
-├── backend/                           # FastAPI Backend
+├── backend/                           # FastAPI Backend (Layered Architecture)
 │   ├── venv/                         ✅ Python virtual environment
 │   ├── app/
 │   │   ├── core/
@@ -152,18 +152,28 @@ E:\My_Repo\Github\20251117_PilotX\
 │   │   ├── db/
 │   │   │   ├── __init__.py           ✅
 │   │   │   └── session.py            ✅ Database session & Base
-│   │   ├── models/
+│   │   ├── models/                   # Model Layer (Database Models)
 │   │   │   ├── __init__.py           ✅
-│   │   │   └── conversation.py       ✅ Conversation & Message models
+│   │   │   ├── conversation_model.py ✅ Conversation ORM model
+│   │   │   └── message_model.py      ✅ Message ORM model
+│   │   ├── repositories/             # Repository Layer (Database Operations)
+│   │   │   ├── __init__.py           ✅
+│   │   │   ├── conversation_repository.py ✅ Conversation CRUD
+│   │   │   └── message_repository.py ✅ Message CRUD
 │   │   ├── schemas/
 │   │   │   ├── __init__.py           ✅
-│   │   │   └── conversation.py       ✅ Pydantic schemas
-│   │   ├── services/
+│   │   │   ├── conversation_schema.py ✅ Conversation Pydantic schemas
+│   │   │   └── message_schema.py     ✅ Message & Chat Pydantic schemas
+│   │   ├── services/                 # Service Layer (Business Logic)
 │   │   │   ├── __init__.py           ✅
+│   │   │   ├── conversation_service.py ✅ Conversation logic
+│   │   │   ├── message_service.py    ✅ Message & Chat logic
 │   │   │   └── ollama.py             ✅ Ollama integration
-│   │   ├── api/
+│   │   ├── api/                      # API Layer (HTTP Endpoints)
 │   │   │   ├── __init__.py           ✅
-│   │   │   └── chat.py               ✅ All API routes
+│   │   │   ├── conversation_api.py   ✅ Conversation endpoints
+│   │   │   └── message_api.py        ✅ Message & Chat endpoints
+│   │   ├── dependencies.py           ✅ Dependency injection
 │   │   └── main.py                   ✅ FastAPI app with CORS
 │   ├── .env                          ✅ Environment config
 │   └── requirements.txt              ✅ Python dependencies

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import chat
+from app.api import conversation_api, message_api
 from app.db.session import engine, Base
 
 # Create database tables
@@ -22,7 +22,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(chat.router, prefix=settings.API_V1_PREFIX, tags=["chat"])
+app.include_router(conversation_api.router, prefix=settings.API_V1_PREFIX, tags=["conversations"])
+app.include_router(message_api.router, prefix=settings.API_V1_PREFIX, tags=["messages"])
 
 
 @app.get("/")
